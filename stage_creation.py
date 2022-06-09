@@ -111,7 +111,7 @@ def drawGrid(window, size, rows, grid, rooms, triangles):
     blockSize = size / rows
     for i in range(rows):
         for j in range(rows):
-            rect = pygame.Rect(i*blockSize, j*blockSize, blockSize, blockSize)
+            rect = pygame.Rect(i*blockSize+0.5, j*blockSize+0.5, blockSize-1, blockSize-1)
             if grid[i][j] == 1:
                 pygame.draw.rect(window, (68,136,123), rect)
             else:
@@ -133,12 +133,17 @@ def main():
     rows = 50
     grid,rooms,triangles = stage_creation(rows)
 
-    window = pygame.display.set_mode((size,size))
+    window = pygame.display.set_mode((size,size),pygame.RESIZABLE)
 
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 exit()
+            if event.type == pygame.VIDEORESIZE:
+                # There's some code to add back window content here.
+                size = event.h
+                window = pygame.display.set_mode((event.h, event.h),
+                                              pygame.RESIZABLE)
         redraw(window,size,rows,grid,rooms,triangles)
 
 main()
