@@ -1,7 +1,7 @@
-
-import random
 import pygame
-
+from scipy.spatial import Delaunay
+import numpy as np
+import random
 
 
 def a_estrellita(graph, start, end):
@@ -22,24 +22,26 @@ class room:
         self.length = length
         self.width = width
 
-    # coordenadas de posicion de la room
+    # coordenadas de posición de la room
     def coord(self,x,y):
         self.x = x
         self.y = y
+        self.centerx = x + self.width/2
+        self.centery = y + self.length/2
 
-    # check para asegurarse de que las rooms no sean colocadas una ensima de otra
+    # check para asegurarse de que las rooms no sean colocadas una encima de otra
     def isColliding(self,room):
-        #Para saber si 2 cuadrados están intersectándose, sus proyecciones en cada dimensión tienen que estar
-        #intersectándose (rangos x e y)
+        # Para saber si 2 cuadrados están intersectándose, sus proyecciones en cada dimensión tienen que estar
+        # intersectándose (rangos x e y)
         return (self.x + self.width  >= room.x and self.x <= room.x + room.width ) and (
                 self.y + self.length  >= room.y and self.y <= room.y + room.length)
 
 
-# genera la 
+# genera la room
 def generateRoom(size):
     totalArea = size*size
-    maxRoomA = int(totalArea/20) #Area maxima de una sala
-    maxL = int(maxRoomA / 3) #Largo maximo de una sala
+    maxRoomA = int(totalArea/20) # Área máxima de una sala
+    maxL = int(maxRoomA / 3) # Largo máximo de una sala
     if(maxL > size/3):
         maxL = int(size/3)
     length =  random.randint(3,maxL)
@@ -48,16 +50,16 @@ def generateRoom(size):
         maxW = int(size/3)
     width = random.randint(3,maxW)
     r = room(length,width)
-    print("Debug:" + str(length) + "," + str(width))
-    #Definición de coordenadas
+    #print("Debug:" + str(length) + "," + str(width))
+    # Definición de coordenadas
     coordx = random.randint(0,size-width)
     coordy = random.randint(0,size-length)
     r.coord(coordx,coordy)
-    #Maximo posicioen es size-width
+    # Máximo posición es size-width
     return r
 
-# genera arreglo de 0's primeramente
-# despues agrega las salas de forma iterativa (el limite de salas aun no esta definido)
+# Genera arreglo de 0's primeramente
+# Después agrega las salas de forma iterativa (el límite de salas aún no esta definido)
 # 
 def initGrid(size):
     #Inicialización de grid tamaño size x size llena de 0's
@@ -66,10 +68,10 @@ def initGrid(size):
         row = [0] * size
         grid.append(row)
         
-    #Creación de salas
-    #Generacion y checkeo de que las salas no esten chocando
+    # Creación de salas
+    # Generacion y checkeo de que las salas no esten chocando
     rooms = []
-    for k in range(20):
+    for k in range(200):
         g = generateRoom(size)
         #Checkeo de colisión entre salas
         for r in rooms:
@@ -80,21 +82,63 @@ def initGrid(size):
             continue
         for i in range(g.x, g.x+g.width):
             for j in range(g.y, g.y+g.length):
-                grid[i][j] = ord('A') + k
+                grid[i][j] = 1
         rooms.append(g)
-    return grid
+    # Crear el grafo mediante la triangulación de Delaunay
+    centers = np.empty([len(rooms),2])
+    for i in range(len(rooms)):
+        centers[i,0] = rooms[i].centerx
+        centers[i,1] = rooms[i].centery
+
+    triangles = centers[Delaunay(centers).simplices]
+    return grid,rooms,triangles
 
 def printGrid(grid):
-    for i in range(len(grid)):
-        for j in range(len(grid)):
+    for j in range(len(grid)):
+        for i in range(len(grid)):
             if(grid[i][j] != 0):
                 print(chr(grid[i][j]), end=" ")
             else:
                 print(" ", end=" ")
         print()
 
+def stage_creation(rows):
+    grid,rooms,triangles = initGrid(rows)
+    printGrid(grid)
+    return grid,rooms,triangles
 
-# main
-grid = initGrid(50)
-printGrid(grid)
+def drawGrid(window, size, rows, grid, rooms, triangles):
+    blockSize = size / rows
+    for i in range(rows):
+        for j in range(rows):
+            rect = pygame.Rect(i*blockSize, j*blockSize, blockSize, blockSize)
+            if grid[i][j] == 1:
+                pygame.draw.rect(window, (68,136,123), rect)
+            else:
+                pygame.draw.rect(window, (157,52,75), rect)
+    for r in rooms:
+        pygame.draw.circle(window, (255,0,0), (r.centerx*blockSize, r.centery*blockSize), 5)    
+    for t in triangles:
+        p = t*blockSize
+        pygame.draw.polygon(window, (124, 185, 92), points=p, width=2)
 
+def redraw(window,size,rows,grid,rooms, triangles):
+    window.fill((79, 0, 17))
+    drawGrid(window,size,rows,grid,rooms, triangles)
+
+    pygame.display.update()
+
+def main():
+    size = 1000
+    rows = 50
+    grid,rooms,triangles = stage_creation(rows)
+
+    window = pygame.display.set_mode((size,size))
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                exit()
+        redraw(window,size,rows,grid,rooms,triangles)
+
+main()
