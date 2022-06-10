@@ -13,10 +13,14 @@ def initGrid(size):
     for i in range(size):   # Se inicializan los valores de la matriz con 0's.
         row = [0] * size
         grid.append(row)
+    return grid
 
+def initRooms(rows):
+    grid = initGrid(rows)
+    
     rooms = []                          # rooms := rectángulos que representan salas.
     for k in range(25):                
-        g = room.generateRoom(size)     # g := sala de tamaño y coordenadas aleatorias.
+        g = room.generateRoom(rows)     # g := sala de tamaño y coordenadas aleatorias.
         for r in rooms:                 # Checkeo de colisiones con el resto de salas.
             if g.isColliding(r):
                 g = None
@@ -27,19 +31,24 @@ def initGrid(size):
             for j in range(g.y, g.y+g.length):
                 grid[i][j] = 1
         rooms.append(g)                     # se agrega g a la lista de salas válidas.
-    # Creación del grafo mediante triangulación de Delaunay.
+    return grid, rooms
+
+def generateGraph(rooms):   # Creación del grafo mediante triangulación de Delaunay.
     centers = np.empty([len(rooms),2])
     for i in range(len(rooms)):
         centers[i,0] = rooms[i].centerx
         centers[i,1] = rooms[i].centery
-
-    triangles = centers[Delaunay(centers).simplices]
-    return grid,rooms,triangles
+    return centers[Delaunay(centers).simplices]
+    
+def initGame(rows):
+    grid, rooms = initRooms(rows)
+    graph = generateGraph(rooms)
+    return grid,rooms,graph
 
 def main():
     size = 1000
     rows = 50
-    grid,rooms,triangles = initGrid(rows)
+    grid,rooms,triangles = initGame(rows)
 
     window = pygame.display.set_mode((size,size),pygame.RESIZABLE)
 
