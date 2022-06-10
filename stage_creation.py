@@ -113,17 +113,17 @@ def drawGrid(window, size, rows, grid, rooms, triangles):
         for j in range(rows):
             rect = pygame.Rect(i*blockSize+0.5, j*blockSize+0.5, blockSize-1, blockSize-1)
             if grid[i][j] == 1:
-                pygame.draw.rect(window, (68,136,123), rect)
+                pygame.draw.rect(window, (3, 88, 140), rect)
             else:
-                pygame.draw.rect(window, (157,52,75), rect)
+                pygame.draw.rect(window, (1, 13, 38), rect)
     for r in rooms:
-        pygame.draw.circle(window, (255,0,0), (r.centerx*blockSize, r.centery*blockSize), 5)    
+        pygame.draw.circle(window, (105, 158, 191), (r.centerx*blockSize, r.centery*blockSize), 5)    
     for t in triangles:
         p = t*blockSize
-        pygame.draw.polygon(window, (124, 185, 92), points=p, width=2)
+        pygame.draw.polygon(window, (3, 140, 127), points=p, width=2)
 
 def redraw(window,size,rows,grid,rooms, triangles):
-    window.fill((79, 0, 17))
+    window.fill((0, 3, 13))
     drawGrid(window,size,rows,grid,rooms, triangles)
 
     pygame.display.update()
