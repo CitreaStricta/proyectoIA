@@ -16,10 +16,10 @@ def initGrid(size):
     return grid
 
 def initRooms(rows):
-    grid = initGrid(rows)
-    
+    grid = initGrid(rows)   # Se crea una matriz de 0's rowsxrows
+
     rooms = []                          # rooms := rectángulos que representan salas.
-    for k in range(25):                
+    for k in range(25):
         g = room.generateRoom(rows)     # g := sala de tamaño y coordenadas aleatorias.
         for r in rooms:                 # Checkeo de colisiones con el resto de salas.
             if g.isColliding(r):
@@ -38,16 +38,28 @@ def generateGraph(rooms):   # Creación del grafo mediante triangulación de Del
     for i in range(len(rooms)):
         centers[i,0] = rooms[i].centerx
         centers[i,1] = rooms[i].centery
+    # Crear una matriz vacía len(rooms)xlen(rooms) -> M
+    # Iterando en los simplices t -> simplex
+    #   t[0]-t[1] -> verificar si arista existe
+    #   Hacer lo mismo para t[1]-t[2]
+    #   hacer lo mismo para t[0]-t[2]
+    #   si no existe t[a]-t[b] en M insertar en M[min(t[a],t[b]),max(t[a],t[b])]: distancia entre centers[t[a]] y centers[t[b]]
+    #   Si arista existe, seguir iterando
+    # Calcular mst (llamar función scipy)
+    # Restar mst a M para obtener aristas no agregadas
+    # Agregar aristas aleatoriamente desde M a mst con una probabilidad elegida.
+
     return centers[Delaunay(centers).simplices]
     
 def initGame(rows):
-    grid, rooms = initRooms(rows)
+    grid, rooms = initRooms(rows)   # Se inicializa la grilla y la lista de salas
     graph = generateGraph(rooms)
     return grid,rooms,graph
 
 def main():
-    size = 1000
-    rows = 50
+    size = 1000     # Tamaño de la pantalla
+    rows = 50       # rows := cantidad de filas y columnas de la grilla
+
     grid,rooms,triangles = initGame(rows)
 
     window = pygame.display.set_mode((size,size),pygame.RESIZABLE)
