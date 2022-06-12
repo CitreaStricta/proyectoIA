@@ -13,16 +13,23 @@ def drawCenters(window, blockSize, rooms):  # Dibujo de puntos centrales de cada
     for r in rooms:
         pygame.draw.circle(window, (105, 158, 191), (r.centerx*blockSize, r.centery*blockSize), 5)
 
-def drawGraph(window, blockSize, triangles):    # Dibujo de líneas de grafo
-    for t in triangles:
-        p = t*blockSize
-        pygame.draw.polygon(window, (3, 140, 127), points=p, width=2)
+def drawGraph(window, blockSize, graph,rooms):    # Dibujo de líneas de grafo
+    for i in range(len(graph)):
+        for j in range(len(graph)):
+            if graph[i][j] != 0:
+                p1 = (rooms[i].centerx*blockSize, rooms[i].centery*blockSize)
+                p2 = (rooms[j].centerx*blockSize, rooms[j].centery*blockSize)
+                pygame.draw.line(window, (3, 140, 127), p1, p2)
 
-def redraw(window, blockSize, grid, rooms, triangles):
+    #for t in triangles:
+    #    p = t*blockSize
+    #    pygame.draw.polygon(window, (3, 140, 127), points=p, width=2)
+
+def redraw(window, blockSize, grid, rooms, graph):
     window.fill((0, 3, 13))
     
     drawGrid(window, blockSize, grid)
     drawCenters(window, blockSize, rooms)
-    drawGraph(window, blockSize, triangles)
+    drawGraph(window, blockSize, graph,rooms)
     
     pygame.display.update()
