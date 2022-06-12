@@ -44,30 +44,53 @@ class APriorityQueue(object):
         except IndexError:
             print()
             exit()
-    
+def initFrontier(grid, r_start):
+    front = []
+    if r_start.x > 0:
+        for i in range(r_start.length):
+            front.append((r_start.x-1,r_start.y+i))
+    if r_start.x + r_start.width < len(grid)-1:
+        for i in range(r_start.length):
+            front.append((r_start.x+r_start.width,r_start.y+i))
+    if r_start.y > 0:
+        for i in range(r_start.width):
+            front.append((r_start.x+i,r_start.y-1))
+    if r_start.y + r_start.length < len(grid)-1:
+        for i in range(r_start.width):
+            front.append((r_start.x+i,r_start.y+r_start.length))
+    return front
+
 def a_star(grid, r_start, r_end):
-    root = [(int(r_start.centerx),int(r_start.centery)),0]    #tupla con f
+    #root = [getClosestStart(grid, r_start, r_end),0]#[(int(r_start.centerx),int(r_start.centery)),0]    #tupla con f
     frontier = APriorityQueue()
-    frontier.insert(root)
+    #frontier.insert(root)
     #print(str(r_start.x) + "," +  str(r_start.y) + "-" + str(r_end.x) + "," + str(r_end.y))
     camino = {}
     g = {}
-    camino[root[0]] = None
-    g[root[0]] = 0
+    #camino[root[0]] = None
+    #g[root[0]] = 0
+    for i in initFrontier(grid, r_start):
+        cost = 1
+        g[i] = cost
+        h = getDistToRoom(i[0],i[1],r_end)
+        f = cost + h
+        frontier.insert([i,f])
+        camino[i] = None
+
     last: Tuple[int,int]
     while not frontier.isEmpty():
         current = frontier.pop()
-        if min(getDistToRoom(current[0][0],current[0][1],r_end),getDistToRoom(current[0][0]+0.5,current[0][1]+0.5,r_end)) == 0.5:
+        if getDistToRoom(current[0][0]+0.5,current[0][1]+0.5,r_end) == 0.5:
             last = current[0]
             break
         neighbors = []
-        if current[0][0] > 0:
+        if current[0][0] > 0 and grid[current[0][0]-1][current[0][1]] != 1:
             neighbors.append((current[0][0]-1,current[0][1]))
-        if current[0][1] > 0:
+        if current[0][1] > 0 and grid[current[0][0]][current[0][1]-1] != 1:
             neighbors.append((current[0][0],current[0][1]-1))
-        if current[0][0] < len(grid)-1:
+        if current[0][0] < len(grid)-1 and grid[current[0][0]+1][current[0][1]] != 1:
             neighbors.append((current[0][0]+1,current[0][1]))
-        if current[0][0] < len(grid)-1:
+        if current[0][1] < len(grid)-1 and grid[current[0][0]][current[0][1]+1] != 1:
             neighbors.append((current[0][0],current[0][1]+1))
         for n in neighbors:
             cost = g[current[0]] + 1
@@ -83,6 +106,8 @@ def a_star(grid, r_start, r_end):
         if grid[last[0]][last[1]] != 1:
             grid[last[0]][last[1]] = 2
         last = camino[last]
+    if grid[last[0]][last[1]] != 1:
+            grid[last[0]][last[1]] = 2
     return grid
 
 def getPaths(graph,grid,rooms):
