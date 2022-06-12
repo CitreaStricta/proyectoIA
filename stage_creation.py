@@ -6,9 +6,91 @@ from stage_models import room
 from draw_handler import redraw
 import random
 
-def a_estrellita(graph, start, end):
+def getDistToRoom(x,y,room):
+    if room.x <= x <= room.x + room.width:
+        return min(abs(room.y - y),abs(y - (room.y+room.length)))
+    if room.y <= y <= room.y + room.length:
+        return min(abs(room.x - x),abs(x - (room.x+room.width)))
+    if x <= room.x:
+        return min( np.linalg.norm([x-room.x, y-room.y]),
+                    np.linalg.norm([x-room.x, (y-(room.y+ room.length))]))
+    if x >= room.x+room.width:
+        return min( np.linalg.norm([x-(room.x+room.width), y-room.y]),
+                    np.linalg.norm([x-(room.x+room.width), y-(room.y+ room.length)]))
+class APriorityQueue(object):
+    def __init__(self):
+        self.queue = []
+ 
+    def __str__(self):
+        return ' '.join([str(i) for i in self.queue])
+    def __len__(self):
+        return len(self.queue)
+
+    def isEmpty(self):
+        return len(self.queue) == 0
+
+    def insert(self, data):
+        self.queue.append(data)
+
+    def pop(self):
+        try:
+            min_val = 0
+            for i in range(len(self.queue)):
+                if self.queue[i][1] < self.queue[min_val][1]:
+                    min_val = i
+            item = self.queue[min_val]
+            del self.queue[min_val]
+            return item
+        except IndexError:
+            print()
+            exit()
     
-    return 0
+def a_star(grid, r_start, r_end):
+    root = [(int(r_start.centerx),int(r_start.centery)),0]    #tupla con f
+    frontier = APriorityQueue()
+    frontier.insert(root)
+    #print(str(r_start.x) + "," +  str(r_start.y) + "-" + str(r_end.x) + "," + str(r_end.y))
+    camino = {}
+    g = {}
+    camino[root[0]] = None
+    g[root[0]] = 0
+    last: Tuple[int,int]
+    while not frontier.isEmpty():
+        current = frontier.pop()
+        if min(getDistToRoom(current[0][0],current[0][1],r_end),getDistToRoom(current[0][0]+0.5,current[0][1]+0.5,r_end)) == 0.5:
+            last = current[0]
+            break
+        neighbors = []
+        if current[0][0] > 0:
+            neighbors.append((current[0][0]-1,current[0][1]))
+        if current[0][1] > 0:
+            neighbors.append((current[0][0],current[0][1]-1))
+        if current[0][0] < len(grid)-1:
+            neighbors.append((current[0][0]+1,current[0][1]))
+        if current[0][0] < len(grid)-1:
+            neighbors.append((current[0][0],current[0][1]+1))
+        for n in neighbors:
+            cost = g[current[0]] + 1
+            if n not in g or cost < g[n]:
+                g[n] = cost
+                h = getDistToRoom(n[0],n[1],r_end)
+                f = cost + h
+                frontier.insert([n,f])
+                camino[n] = current[0]
+        
+    print(last[0])
+    while camino[last] != None:
+        if grid[last[0]][last[1]] != 1:
+            grid[last[0]][last[1]] = 2
+        last = camino[last]
+    return grid
+
+def getPaths(graph,grid,rooms):
+    for i in range(len(graph)):
+        for j in range(len(graph)):
+            if graph[i][j] != 0:
+                grid = a_star(grid,rooms[i],rooms[j])
+    return grid
 
 def initGrid(size):
     grid = []               # grid := matriz del mapa entero de tamaño sizexsize.
@@ -21,7 +103,7 @@ def initRooms(rows):
     grid = initGrid(rows)   # Se crea una matriz de 0's rowsxrows
 
     rooms = []                          # rooms := rectángulos que representan salas.
-    for k in range(25):
+    for k in range(50):
         g = room.generateRoom(rows)     # g := sala de tamaño y coordenadas aleatorias.
         for r in rooms:                 # Checkeo de colisiones con el resto de salas.
             if g.isColliding(r):
@@ -85,6 +167,7 @@ def generateGraph(rooms):   # Creación del grafo mediante triangulación de Del
 def initGame(rows):
     grid, rooms = initRooms(rows)   # Se inicializa la grilla y la lista de salas
     graph = generateGraph(rooms)
+    grid = getPaths(graph,grid,rooms)
     return grid,rooms,graph
 
 def main():

@@ -6,6 +6,8 @@ def drawGrid(window, blockSize, grid):  # Dibujo de mapas (Salas, túneles, fond
             rect = pygame.Rect(i*blockSize+0.5, j*blockSize+0.5, blockSize-1, blockSize-1)
             if grid[i][j] == 1:
                 pygame.draw.rect(window, (3, 88, 140), rect)
+            elif grid[i][j] == 2:
+                pygame.draw.rect(window, (105, 158, 191), rect)
             else:
                 pygame.draw.rect(window, (1, 13, 38), rect)
 
