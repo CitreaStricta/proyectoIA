@@ -7,4 +7,4 @@ Pygame
 scipy
 numpy
 
-ejecutar en consola con "python stage_creation.py"
+ejecutar en consola con "stage_creation.py"
