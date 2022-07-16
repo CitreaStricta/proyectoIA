@@ -3,7 +3,7 @@ from scipy.spatial import Delaunay
 from scipy.sparse.csgraph import minimum_spanning_tree
 import numpy as np
 from stage_models import room
-from draw_handler import redraw
+from window_handler import windowHandler
 import random
 
 def getDistToRoom(x,y,room):
@@ -60,13 +60,14 @@ def initFrontier(grid, r_start):
             front.append((r_start.x+i,r_start.y+r_start.length))
     return front
 
-def a_star(grid, r_start, r_end):
+def a_star(grid, r_start, r_end, wh):
     #root = [getClosestStart(grid, r_start, r_end),0]#[(int(r_start.centerx),int(r_start.centery)),0]    #tupla con f
     frontier = APriorityQueue()
     #frontier.insert(root)
     #print(str(r_start.x) + "," +  str(r_start.y) + "-" + str(r_end.x) + "," + str(r_end.y))
     camino = {}
     g = {}
+    explorado = []
     #camino[root[0]] = None
     #g[root[0]] = 0
     for i in initFrontier(grid, r_start):
@@ -80,6 +81,12 @@ def a_star(grid, r_start, r_end):
     last: Tuple[int,int]
     while not frontier.isEmpty():
         current = frontier.pop()
+
+        if grid[current[0][0]][current[0][1]] != 2:
+            grid[current[0][0]][current[0][1]] = 3
+            explorado.append(current[0])
+        wh.redraw(grid)
+
         if getDistToRoom(current[0][0]+0.5,current[0][1]+0.5,r_end) == 0.5:
             last = current[0]
             break
@@ -105,16 +112,21 @@ def a_star(grid, r_start, r_end):
     while camino[last] != None:
         if grid[last[0]][last[1]] != 1:
             grid[last[0]][last[1]] = 2
+            wh.redraw(grid)
         last = camino[last]
     if grid[last[0]][last[1]] != 1:
             grid[last[0]][last[1]] = 2
+
+    for e in explorado:
+        if grid[e[0]][e[1]] == 3:
+           grid[e[0]][e[1]] = 0 
     return grid
 
-def getPaths(graph,grid,rooms):
+def getPaths(graph,grid,rooms,wh):
     for i in range(len(graph)):
         for j in range(len(graph)):
             if graph[i][j] != 0:
-                grid = a_star(grid,rooms[i],rooms[j])
+                grid = a_star(grid,rooms[i],rooms[j],wh)
     return grid
 
 def initGrid(size):
@@ -124,7 +136,7 @@ def initGrid(size):
         grid.append(row)
     return grid
 
-def initRooms(rows):
+def initRooms(rows, wh):
     grid = initGrid(rows)   # Se crea una matriz de 0's rowsxrows
 
     rooms = []                          # rooms := rectángulos que representan salas.
@@ -138,7 +150,9 @@ def initRooms(rows):
             continue
         for i in range(g.x, g.x+g.width):   #  Si g no colisiona se agrega a la grid llenando la zona de 1's.
             for j in range(g.y, g.y+g.length):
+                wh.handleEvent()
                 grid[i][j] = 1
+                wh.redraw(grid,rooms)
         rooms.append(g)                     # se agrega g a la lista de salas válidas.
     return grid, rooms
 
@@ -189,29 +203,26 @@ def generateGraph(rooms):   # Creación del grafo mediante triangulación de Del
 
     return mst
     
-def initGame(rows):
-    grid, rooms = initRooms(rows)   # Se inicializa la grilla y la lista de salas
+def initGame(rows,wh):
+    grid, rooms = initRooms(rows,wh)   # Se inicializa la grilla y la lista de salas
     graph = generateGraph(rooms)
-    grid = getPaths(graph,grid,rooms)
+    wh.setGraph(rooms,graph)
+    grid = getPaths(graph,grid,rooms,wh)
     return grid,rooms,graph
 
 def main():
     size = 700     # Tamaño de la pantalla
     rows = 50       # rows := cantidad de filas y columnas de la grilla
-
-    grid,rooms,graph = initGame(rows)
-
     window = pygame.display.set_mode((size,size),pygame.RESIZABLE)
 
     while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                exit()
-            if event.type == pygame.VIDEORESIZE:
-                # There's some code to add back window content here.
-                size = max([event.h,event.w])
-                window = pygame.display.set_mode((size, size),
-                                              pygame.RESIZABLE)
-        redraw(window,size/rows,grid,rooms,graph)
+        wh = windowHandler(window,size/rows)
+        grid,rooms,graph = initGame(rows,wh)
+
+        while True:
+            wh.handleEvent()
+            if wh.reset:
+                break
+            wh.redraw(grid)
 
 main()
