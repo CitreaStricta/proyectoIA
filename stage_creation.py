@@ -84,7 +84,7 @@ def a_star(grid, r_start, r_end, wh):
     while not frontier.isEmpty():
         current = frontier.pop()
 
-        if grid[current[0][0]][current[0][1]] != 2:
+        if grid[current[0][0]][current[0][1]] == 0:
             grid[current[0][0]][current[0][1]] = 3
             explorado.append(current[0])
         wh.redraw(grid)
