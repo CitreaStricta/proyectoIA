@@ -18,6 +18,10 @@ class windowHandler:
                     pygame.draw.rect(win, (105, 158, 191), rect)
                 elif grid[i][j] == 3:
                     pygame.draw.rect(win, (242, 234, 114), rect)
+                elif grid[i][j] == 4:
+                    pygame.draw.rect(win, (56, 134, 154), rect)
+                elif grid[i][j] == 5:
+                    pygame.draw.rect(win, (255, 102, 178), rect)
                 else:
                     pygame.draw.rect(win, (1, 13, 38), rect)
 
