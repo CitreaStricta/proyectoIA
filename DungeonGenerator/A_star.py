@@ -80,15 +80,15 @@ def a_star(grid, r_start, r_end, wh):
     ultimo = last
 
     while camino[last] != None:
-        if grid[last[0]][last[1]] != 1:
+        if grid[last[0]][last[1]] == 0:
             grid[last[0]][last[1]] = 2
             wh.addBox(last[0],last[1],(105, 158, 191),2)
-            wh.update()#wh.redraw(grid)
+            wh.update()
         last = camino[last]
-    if grid[last[0]][last[1]] != 1:
+    if grid[last[0]][last[1]] == 0:
             grid[last[0]][last[1]] = 2
             wh.addBox(last[0],last[1],(105, 158, 191),2)
-            wh.update()#wh.redraw(grid)
+            wh.update()
 
     primero = last
 
