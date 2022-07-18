@@ -102,42 +102,70 @@ class Generator:
 				if graph[i][j] != 0:
 					grid = a_star(grid,rooms[i],rooms[j],wh)
 		self.grid = grid
+	
+	
 	def roomPath(self):
 		grid = self.grid
 		rooms = self.rooms
 		wh = self.wh
-
 		entradas = []
 		size = len(grid)
 		idx = -1
 
+		camino = []
+
 		for r in rooms:
+			camino.append([])
 			entradas.append([])
 			idx = idx + 1
 			for i in range(r.x, r.x + r.width):
 				for j in range(r.y, r.y + r.length):
+					if i == r.x:
+						if [i,j] not in camino[idx]:
+							camino[idx].append([i,j])
+							wh.addBox(i,j,(255, 0, 0))
+					
+					if i == r.x + r.width - 1:
+						if [i,j] not in camino[idx]:
+							camino[idx].append([i,j])
+							wh.addBox(i,j,(255, 0, 0))
+					
+					if j == r.y:
+						if [i,j] not in camino[idx]:
+							camino[idx].append([i,j])
+							wh.addBox(i,j,(255, 0, 0))
+					
+					if j == r.y + r.length - 1:
+						if [i,j] not in camino[idx]:
+							camino[idx].append([i,j])
+							wh.addBox(i,j,(255, 0, 0))
+					
 					if i-1 >= 0:
 						if grid[i-1][j] == 4:
-							grid[i][j] = 5
-							entradas[idx].append([i,j])
-							wh.addBox(i,j,(255, 102, 178))
-					if i+1 < size:
-						if grid[i+1][j] == 4:
-							grid[i][j] = 5
-							entradas[idx].append([i,j])
-							wh.addBox(i,j,(255, 102, 178))
-					if j+1 < size:
-						if grid[i][j+1] == 4:
-							grid[i][j] = 5
-							entradas[idx].append([i,j])
-							wh.addBox(i,j,(255, 102, 178))
-					if j-1 >= 0:
-						if grid[i][j-1] == 4:
-							grid[i][j] = 5
+							grid[i][j] = 5	
 							entradas[idx].append([i,j])
 							wh.addBox(i,j,(255, 102, 178))
 
+					if i+1 < size:
+						if grid[i+1][j] == 4:
+							grid[i][j] = 5		
+							entradas[idx].append([i,j])
+							wh.addBox(i,j,(255, 102, 178))
+
+					if j+1 < size:
+						if grid[i][j+1] == 4:
+							grid[i][j] = 5		
+							entradas[idx].append([i,j])
+							wh.addBox(i,j,(255, 102, 178))
+
+					if j-1 >= 0:
+						if grid[i][j-1] == 4:
+							grid[i][j] = 5		
+							entradas[idx].append([i,j])
+							wh.addBox(i,j,(255, 102, 178))
+		print(camino[0])
 		return entradas
+
 	def init_content(self):
 		rooms = self.rooms
 		grid = self.grid
@@ -147,11 +175,11 @@ class Generator:
 			# se crean casillas que "pegan"
 			contenido = room_content.trampa(room, random.randint(0, room.width-1), random.randint(0, room.length-1))
 			grid[contenido.content_x_pos][contenido.content_y_pos] = 6
-			wh.addBox(contenido.content_x_pos,contenido.content_y_pos,(255,127,80))
+			#wh.addBox(contenido.content_x_pos,contenido.content_y_pos,(255,127,80))
 			# se crean casillas donde el jugador no se puede colocar
 			contenido = room_content.roca(room, random.randint(0, room.width-1), random.randint(0, room.length-1))
 			grid[contenido.content_x_pos][contenido.content_y_pos] = 7
-			wh.addBox(contenido.content_x_pos,contenido.content_y_pos,(6, 32, 39))
+			#wh.addBox(contenido.content_x_pos,contenido.content_y_pos,(6, 32, 39))
 			# FALTA HACER EL CHEKEO DE QUE NO SE PONGAN UNA ENCIMA DE LA OTRA
 
 
