@@ -18,7 +18,10 @@ class room:
         # intersectándose (rangos x e y)
         return (self.x + self.width  >= room.x and self.x <= room.x + room.width ) and (
                 self.y + self.length  >= room.y and self.y <= room.y + room.length)
-
+    def isCollidingMany(self,rooms):
+        for r in rooms:
+            if self.isColliding(r):
+                return True
     # genera la room
     @classmethod
     def generateRoom(self,size):
