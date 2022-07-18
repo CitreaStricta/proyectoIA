@@ -56,18 +56,16 @@ class Window:
 					boxes[i][j] = ((1, 13, 38),0)
 		self.boxes = boxes
 	def handleEvent(self):
-	    for event in pygame.event.get():
-	        if event.type == pygame.QUIT:
-	            # pygame.image.save( window, 'surface.png' )
-	            exit()
-	        if event.type == pygame.VIDEORESIZE:
-	            # There's some code to add back window content here.
-	            size = event.w
-	            self.size = size
-	            self.window = pygame.display.set_mode((size, size),
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				exit()
+			if event.type == pygame.VIDEORESIZE:
+				size = event.w
+				self.size = size
+				self.window = pygame.display.set_mode((size, size),
 	                                          pygame.RESIZABLE)
-	        if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
-	            self.reset = True
+			if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
+				self.reset = True
 	def clear(self):
 		self.boxes = []
 		self.lines = []
