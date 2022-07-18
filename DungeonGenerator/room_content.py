@@ -1,4 +1,4 @@
-from stage_models import room
+from DungeonGenerator.Room import room
 
 # todo contenido que no se mueve de donde inicia hereda esta clase
 class content:

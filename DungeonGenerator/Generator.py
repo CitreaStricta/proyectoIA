@@ -6,7 +6,7 @@ import numpy as np
 from DungeonGenerator.Room import room
 #from window_handler import windowHandler
 from DungeonGenerator.Window import Window
-import room_content
+from DungeonGenerator import room_content
 import random
 
 class Generator:
