@@ -5,6 +5,7 @@ import numpy as np
 from stage_models import room
 from window_handler import windowHandler
 import random
+import room_content
 
 def getDistToRoom(x,y,room):
     if room.x <= x <= room.x + room.width:
@@ -202,13 +203,32 @@ def generateGraph(rooms):   # Creación del grafo mediante triangulación de Del
                     mst[i][j] = no_agregadas[i][j]
 
     return mst
-    
+
+# genera los contenidos a colocar en la grid
+def init_content(rooms, grid):
+    contenidos = []
+    for room in rooms:
+        # se crean casillas que "pegan"
+        contenido = room_content.trampa(room, random.randint(0, room.width-1), random.randint(0, room.length-1))
+        grid[contenido.content_x_pos][contenido.content_y_pos] = 5
+        # se crean casillas donde el jugador no se puede colocar
+        contenido = room_content.roca(room, random.randint(0, room.width-1), random.randint(0, room.length-1))
+        grid[contenido.content_x_pos][contenido.content_y_pos] = 6
+        # FALTA HACER EL CHEKEO DE QUE NO SE PONGAN UNA ENCIMA DE LA OTRA
+        
+        
+        contenidos.append(contenido)
+
+    return contenidos
+
 def initGame(rows,wh):
     grid, rooms = initRooms(rows,wh)   # Se inicializa la grilla y la lista de salas
     graph = generateGraph(rooms)
     wh.setGraph(rooms,graph)
     grid = getPaths(graph,grid,rooms,wh)
-    return grid,rooms,graph
+    contenidos = init_content(rooms, grid)
+    wh.setContenidos(contenidos)
+    return grid,rooms,graph,contenidos
 
 def main():
     size = 700     # Tamaño de la pantalla
@@ -217,7 +237,7 @@ def main():
 
     while True:
         wh = windowHandler(window,size/rows)
-        grid,rooms,graph = initGame(rows,wh)
+        grid,rooms,graph, contenidos = initGame(rows,wh)
 
         while True:
             wh.handleEvent()

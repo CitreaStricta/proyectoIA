@@ -5,21 +5,27 @@ class windowHandler:
         self.blockSize = blockSize
         self.graph = []
         self.rooms = []
+        self.contenidos = []
         self.reset = False
+
     def drawGrid(self, grid):  # Dibujo de mapas (Salas, túneles, fondo, etc.).
         bs = self.blockSize
         win = self.window
         for i in range(len(grid)):
             for j in range(len(grid)):
-                rect = pygame.Rect(i*bs+0.5, j*bs+0.5, bs-1, bs-1)
+                self.rect = pygame.Rect(i*bs+0.5, j*bs+0.5, bs-1, bs-1)
                 if grid[i][j] == 1:
-                    pygame.draw.rect(win, (3, 88, 140), rect)
+                    pygame.draw.rect(win, (3, 88, 140), self.rect)
                 elif grid[i][j] == 2:
-                    pygame.draw.rect(win, (105, 158, 191), rect)
+                    pygame.draw.rect(win, (105, 158, 191), self.rect)
                 elif grid[i][j] == 3:
-                    pygame.draw.rect(win, (242, 234, 114), rect)
+                    pygame.draw.rect(win, (242, 234, 114), self.rect)
+                elif grid[i][j] == 5:
+                    pygame.draw.rect(win, (255,127,80), self.rect)
+                elif grid[i][j] == 6:
+                    pygame.draw.rect(win, (6, 32, 39), self.rect)
                 else:
-                    pygame.draw.rect(win, (1, 13, 38), rect)
+                    pygame.draw.rect(win, (1, 13, 38), self.rect)
 
     def drawCenters(self, rooms):  # Dibujo de puntos centrales de cada sala.
         bs = self.blockSize
@@ -49,6 +55,7 @@ class windowHandler:
                     p1 = (rooms[i].centerx*bs, rooms[i].centery*bs)
                     p2 = (rooms[j].centerx*bs, rooms[j].centery*bs)
                     pygame.draw.line(win, (3, 140, 127), p1, p2)
+
     def setGraph(self, rooms, graph):
         self.rooms = rooms
         self.graph = graph
@@ -62,4 +69,12 @@ class windowHandler:
             self.drawCenters(self.rooms)
             self.drawGraph(self.graph,self.rooms)
         
+        #self.drawContenidos()
+        
         pygame.display.update()
+
+    def setContenidos(self, contenidos):
+        self.contenidos = contenidos
+        
+    # def drawContenidos(self):
+    #     pygame.draw.rect(self.window, contenido.color, self.rect)
