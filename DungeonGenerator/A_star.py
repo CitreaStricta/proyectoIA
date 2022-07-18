@@ -29,19 +29,16 @@ def initFrontier(grid, r_start):
     return front
     
 def a_star(grid, r_start, r_end, wh):
-    #root = [getClosestStart(grid, r_start, r_end),0]#[(int(r_start.centerx),int(r_start.centery)),0]    #tupla con f
     frontier = APriorityQueue()
-    #frontier.insert(root)
-    #print(str(r_start.x) + "," +  str(r_start.y) + "-" + str(r_end.x) + "," + str(r_end.y))
     camino = {}
     g = {}
-    explorado = []
-    #camino[root[0]] = None
-    #g[root[0]] = 0
+    maxH = 0
     for i in initFrontier(grid, r_start):
         cost = 1
         g[i] = cost
         h = getDistToRoom(i[0],i[1],r_end)
+        if(h > maxH):
+            maxH = h
         f = cost + h
         frontier.insert([i,f])
         camino[i] = None
@@ -51,9 +48,10 @@ def a_star(grid, r_start, r_end, wh):
         current = frontier.pop()
 
         if grid[current[0][0]][current[0][1]] == 0:
-            wh.addBox(current[0][0],current[0][1],(242, 234, 114),3)#grid[current[0][0]][current[0][1]] = 3
-            #explorado.append(current[0])
-        #wh.redraw(grid)
+            color = 234*(1-(getDistToRoom(current[0][0],current[0][1],r_end)/maxH))
+            if color < 0:
+                color = 0
+            wh.addBox(current[0][0],current[0][1],(242, color, 114),3)
         wh.update()
 
         if getDistToRoom(current[0][0]+0.5,current[0][1]+0.5,r_end) == 0.5:
@@ -98,7 +96,4 @@ def a_star(grid, r_start, r_end, wh):
     wh.addBox(primero[0],primero[1],(56, 134, 154))
     
     wh.deleteBoxes(3)
-    # for e in explorado:
-    #     if grid[e[0]][e[1]] == 3:
-    #        grid[e[0]][e[1]] = 0 
     return grid
