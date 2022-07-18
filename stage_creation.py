@@ -1,3 +1,4 @@
+from re import A
 import pygame
 from scipy.spatial import Delaunay
 from scipy.sparse.csgraph import minimum_spanning_tree
@@ -45,6 +46,7 @@ class APriorityQueue(object):
         except IndexError:
             print()
             exit()
+
 def initFrontier(grid, r_start):
     front = []
     if r_start.x > 0:
@@ -83,7 +85,7 @@ def a_star(grid, r_start, r_end, wh):
     while not frontier.isEmpty():
         current = frontier.pop()
 
-        if grid[current[0][0]][current[0][1]] != 2:
+        if grid[current[0][0]][current[0][1]] == 0:
             grid[current[0][0]][current[0][1]] = 3
             explorado.append(current[0])
         wh.redraw(grid)
@@ -108,8 +110,9 @@ def a_star(grid, r_start, r_end, wh):
                 f = cost + h
                 frontier.insert([n,f])
                 camino[n] = current[0]
-        
-    print(last[0])
+    
+    ultimo = last
+
     while camino[last] != None:
         if grid[last[0]][last[1]] != 1:
             grid[last[0]][last[1]] = 2
@@ -118,10 +121,46 @@ def a_star(grid, r_start, r_end, wh):
     if grid[last[0]][last[1]] != 1:
             grid[last[0]][last[1]] = 2
 
+    primero = last
+
+    grid[ultimo[0]][ultimo[1]] = 4
+    grid[primero[0]][primero[1]] = 4
+    
     for e in explorado:
         if grid[e[0]][e[1]] == 3:
            grid[e[0]][e[1]] = 0 
     return grid
+
+def roomPath(grid, rooms):
+    entradas = []
+    size = len(grid)
+    idx = -1
+
+    print(size)
+
+    for r in rooms:
+        entradas.append([])
+        idx = idx + 1
+        for i in range(r.x, r.x + r.width):
+            for j in range(r.y, r.y + r.length):
+                if i-1 >= 0:
+                    if grid[i-1][j] == 4:
+                        grid[i][j] = 5
+                        entradas[idx].append([i,j])
+                if i+1 < size:
+                    if grid[i+1][j] == 4:
+                        grid[i][j] = 5
+                        entradas[idx].append([i,j])
+                if j+1 < size:
+                    if grid[i][j+1] == 4:
+                        grid[i][j] = 5
+                        entradas[idx].append([i,j])
+                if j-1 >= 0:
+                    if grid[i][j-1] == 4:
+                        grid[i][j] = 5
+                        entradas[idx].append([i,j])
+
+    return entradas
 
 def getPaths(graph,grid,rooms,wh):
     for i in range(len(graph)):
@@ -190,8 +229,6 @@ def generateGraph(rooms):   # Creación del grafo mediante triangulación de Del
     # Calcular mst (llamar función scipy)
     mst = minimum_spanning_tree(m).toarray().astype(int)
 
-
-
     # Restar mst a M para obtener aristas no agregadas
     no_agregadas = m - mst
     
@@ -210,10 +247,10 @@ def init_content(rooms, grid):
     for room in rooms:
         # se crean casillas que "pegan"
         contenido = room_content.trampa(room, random.randint(0, room.width-1), random.randint(0, room.length-1))
-        grid[contenido.content_x_pos][contenido.content_y_pos] = 5
+        grid[contenido.content_x_pos][contenido.content_y_pos] = 6
         # se crean casillas donde el jugador no se puede colocar
         contenido = room_content.roca(room, random.randint(0, room.width-1), random.randint(0, room.length-1))
-        grid[contenido.content_x_pos][contenido.content_y_pos] = 6
+        grid[contenido.content_x_pos][contenido.content_y_pos] = 7
         # FALTA HACER EL CHEKEO DE QUE NO SE PONGAN UNA ENCIMA DE LA OTRA
         
         
@@ -228,6 +265,7 @@ def initGame(rows,wh):
     grid = getPaths(graph,grid,rooms,wh)
     contenidos = init_content(rooms, grid)
     wh.setContenidos(contenidos)
+    print(roomPath(grid, rooms))
     return grid,rooms,graph,contenidos
 
 def main():

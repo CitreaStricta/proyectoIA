@@ -11,21 +11,26 @@ class windowHandler:
     def drawGrid(self, grid):  # Dibujo de mapas (Salas, túneles, fondo, etc.).
         bs = self.blockSize
         win = self.window
+        
         for i in range(len(grid)):
             for j in range(len(grid)):
-                self.rect = pygame.Rect(i*bs+0.5, j*bs+0.5, bs-1, bs-1)
+                rect = pygame.Rect(i*bs+0.5, j*bs+0.5, bs-1, bs-1)
                 if grid[i][j] == 1:
-                    pygame.draw.rect(win, (3, 88, 140), self.rect)
+                    pygame.draw.rect(win, (3, 88, 140), rect)
                 elif grid[i][j] == 2:
-                    pygame.draw.rect(win, (105, 158, 191), self.rect)
+                    pygame.draw.rect(win, (105, 158, 191), rect)
                 elif grid[i][j] == 3:
-                    pygame.draw.rect(win, (242, 234, 114), self.rect)
-                elif grid[i][j] == 5:
-                    pygame.draw.rect(win, (255,127,80), self.rect)
+                    pygame.draw.rect(win, (242, 234, 114), rect)
                 elif grid[i][j] == 6:
-                    pygame.draw.rect(win, (6, 32, 39), self.rect)
+                    pygame.draw.rect(win, (255,127,80), rect)
+                elif grid[i][j] == 7:
+                    pygame.draw.rect(win, (6, 32, 39), rect)
+                elif grid[i][j] == 4:
+                    pygame.draw.rect(win, (56, 134, 154), rect)
+                elif grid[i][j] == 5:
+                    pygame.draw.rect(win, (255, 102, 178), rect)
                 else:
-                    pygame.draw.rect(win, (1, 13, 38), self.rect)
+                    pygame.draw.rect(win, (1, 13, 38), rect)
 
     def drawCenters(self, rooms):  # Dibujo de puntos centrales de cada sala.
         bs = self.blockSize
