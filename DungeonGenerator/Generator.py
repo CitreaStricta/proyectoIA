@@ -108,10 +108,10 @@ class Generator:
 		grid = self.grid
 		rooms = self.rooms
 		wh = self.wh
-		entradas = []
+		
 		size = len(grid)
 		idx = -1
-
+		entradas = []
 		camino = []
 
 		for r in rooms:
@@ -120,50 +120,52 @@ class Generator:
 			idx = idx + 1
 			for i in range(r.x, r.x + r.width):
 				for j in range(r.y, r.y + r.length):
-					if i == r.x:
+					# Considerar sólo el borde de la sala para el camino inicial
+					if i == r.x: # Borde izquierdo
 						if [i,j] not in camino[idx]:
 							camino[idx].append([i,j])
-							wh.addBox(i,j,(255, 0, 0))
 					
-					if i == r.x + r.width - 1:
+					if i == r.x + r.width - 1: # Borde derecho
 						if [i,j] not in camino[idx]:
 							camino[idx].append([i,j])
-							wh.addBox(i,j,(255, 0, 0))
 					
-					if j == r.y:
+					if j == r.y: # Borde superior
 						if [i,j] not in camino[idx]:
 							camino[idx].append([i,j])
-							wh.addBox(i,j,(255, 0, 0))
 					
-					if j == r.y + r.length - 1:
+					if j == r.y + r.length - 1: # Borde inferior
 						if [i,j] not in camino[idx]:
 							camino[idx].append([i,j])
-							wh.addBox(i,j,(255, 0, 0))
-					
-					if i-1 >= 0:
+					# Pintar entrada a las salas
+					if i-1 >= 0: # Si entrada está a la izquierda
 						if grid[i-1][j] == 4:
 							grid[i][j] = 5	
 							entradas[idx].append([i,j])
 							wh.addBox(i,j,(255, 102, 178))
 
-					if i+1 < size:
+					if i+1 < size: # Si entrada está a la derecha
 						if grid[i+1][j] == 4:
 							grid[i][j] = 5		
 							entradas[idx].append([i,j])
 							wh.addBox(i,j,(255, 102, 178))
 
-					if j+1 < size:
+					if j+1 < size: # Si entrada está abajo
 						if grid[i][j+1] == 4:
 							grid[i][j] = 5		
 							entradas[idx].append([i,j])
 							wh.addBox(i,j,(255, 102, 178))
 
-					if j-1 >= 0:
+					if j-1 >= 0: # Si entrada está arriba
 						if grid[i][j-1] == 4:
 							grid[i][j] = 5		
 							entradas[idx].append([i,j])
 							wh.addBox(i,j,(255, 102, 178))
-		print(camino[0])
+
+		for i in range(idx+1):
+			for j in range(len(camino[i])):
+				if camino[i][j] not in entradas[i]:
+					wh.addBox(camino[i][j][0],camino[i][j][1],(255, 204, 229))
+
 		return entradas
 
 	def init_content(self):
