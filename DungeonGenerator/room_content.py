@@ -7,9 +7,7 @@ class content:
     
     def __init__(self, room, content_x_pos, content_y_pos):
         self.content_x_pos = room.x + content_x_pos
-        print("cord x"+ str(room.x + content_x_pos))
         self.content_y_pos = room.y + content_y_pos
-        print("cord y"+ str(room.y + content_y_pos))
 
 # contenido donde el jugador puede colocarse encima
 # todo contenido que tiene un efecto cuando el jugador se para en ellas

@@ -16,11 +16,11 @@ class Generator:
 		self.graph = []
 		self.paths = []
 	def initGrid(self,nrows):
-	    grid = []               # grid := matriz del mapa entero de tamaño sizexsize.
-	    for i in range(nrows):   # Se inicializan los valores de la matriz con 0's.
-	        row = [0] * nrows
-	        grid.append(row)
-	    return grid
+		grid = []               # grid := matriz del mapa entero de tamaño sizexsize.
+		for i in range(nrows):	# Se inicializan los valores de la matriz con 0's.
+			row = [0] * nrows
+			grid.append(row)
+		return grid
 	def generateRooms(self):
 		grid = self.grid   # Se crea una matriz de 0's rowsxrows
 		rows = self.rows
@@ -46,8 +46,8 @@ class Generator:
 		wh = self.wh
 		centers = np.empty([len(rooms),2])
 		for i in range(len(rooms)):
-		    centers[i,0] = rooms[i].centerx
-		    centers[i,1] = rooms[i].centery
+			centers[i,0] = rooms[i].centerx
+			centers[i,1] = rooms[i].centery
 		# Crear una matriz vacía len(rooms)xlen(rooms) -> M
 		m = np.zeros((len(rooms),len(rooms)))
 		# Iterando en los simplices t -> simplex
@@ -57,21 +57,21 @@ class Generator:
 		#   si no existe t[a]-t[b] en M insertar en M[min(t[a],t[b]),max(t[a],t[b])]: distancia entre centers[t[a]] y centers[t[b]]
 		#   Si arista existe, seguir iterando
 		for t in Delaunay(centers).simplices:
-		    if m[t[0]][t[1]] == 0:
-		        if t[0] < t[1]:
-		            m[t[0]][t[1]] = np.linalg.norm(t[1] - t[0])
-		        else:
-		            m[t[1]][t[0]] = np.linalg.norm(t[0] - t[1])
-		    if m[t[1]][t[2]] == 0:
-		        if t[1] < t[2]:
-		            m[t[1]][t[2]] = np.linalg.norm(t[2] - t[1])
-		        else:
-		            m[t[2]][t[1]] = np.linalg.norm(t[1]- t[2])
-		    if m[t[0]][t[2]] == 0:
-		        if t[0] < t[2]:
-		            m[t[0]][t[2]] = np.linalg.norm(t[2] - t[0])
-		        else:
-		            m[t[2]][t[0]] = np.linalg.norm(t[0] - t[2])        
+			if m[t[0]][t[1]] == 0:
+				if t[0] < t[1]:
+					m[t[0]][t[1]] = np.linalg.norm(t[1] - t[0])
+				else:
+					m[t[1]][t[0]] = np.linalg.norm(t[0] - t[1])
+			if m[t[1]][t[2]] == 0:
+				if t[1] < t[2]:
+					m[t[1]][t[2]] = np.linalg.norm(t[2] - t[1])
+				else:
+					m[t[2]][t[1]] = np.linalg.norm(t[1]- t[2])
+			if m[t[0]][t[2]] == 0:
+				if t[0] < t[2]:
+					m[t[0]][t[2]] = np.linalg.norm(t[2] - t[0])
+				else:
+					m[t[2]][t[0]] = np.linalg.norm(t[0] - t[2])        
 
 		# Calcular mst (llamar función scipy)
 		mst = minimum_spanning_tree(m).toarray().astype(int)
@@ -81,10 +81,10 @@ class Generator:
 
 		# Agregar aristas aleatoriamente desde M a mst con una probabilidad elegida.
 		for i in range(len(no_agregadas)):
-		    for j in range(len(no_agregadas)):
-		        if no_agregadas[i][j] != 0:
-		            if random.randint(0,5) == 1:
-		                mst[i][j] = no_agregadas[i][j]
+			for j in range(len(no_agregadas)):
+				if no_agregadas[i][j] != 0:
+					if random.randint(0,5) == 1:
+						mst[i][j] = no_agregadas[i][j]
 
 		for i in range(len(mst)):
 			for j in range(len(mst)):
@@ -98,11 +98,9 @@ class Generator:
 		rooms = self.rooms
 		wh = self.wh
 		for i in range(len(graph)):
-		    for j in range(len(graph)):
-		        if graph[i][j] != 0:
-		            grid = a_star(grid,rooms[i],rooms[j],wh)
-		            #self.paths.append(path)
-
+			for j in range(len(graph)):
+				if graph[i][j] != 0:
+					grid = a_star(grid,rooms[i],rooms[j],wh)
 		self.grid = grid
 	def roomPath(self):
 		grid = self.grid
@@ -113,33 +111,31 @@ class Generator:
 		size = len(grid)
 		idx = -1
 
-		print(size)
-
 		for r in rooms:
-		    entradas.append([])
-		    idx = idx + 1
-		    for i in range(r.x, r.x + r.width):
-		        for j in range(r.y, r.y + r.length):
-		            if i-1 >= 0:
-		                if grid[i-1][j] == 4:
-		                    grid[i][j] = 5
-		                    entradas[idx].append([i,j])
-		                    wh.addBox(i,j,(255, 102, 178))
-		            if i+1 < size:
-		                if grid[i+1][j] == 4:
-		                    grid[i][j] = 5
-		                    entradas[idx].append([i,j])
-		                    wh.addBox(i,j,(255, 102, 178))
-		            if j+1 < size:
-		                if grid[i][j+1] == 4:
-		                    grid[i][j] = 5
-		                    entradas[idx].append([i,j])
-		                    wh.addBox(i,j,(255, 102, 178))
-		            if j-1 >= 0:
-		                if grid[i][j-1] == 4:
-		                    grid[i][j] = 5
-		                    entradas[idx].append([i,j])
-		                    wh.addBox(i,j,(255, 102, 178))
+			entradas.append([])
+			idx = idx + 1
+			for i in range(r.x, r.x + r.width):
+				for j in range(r.y, r.y + r.length):
+					if i-1 >= 0:
+						if grid[i-1][j] == 4:
+							grid[i][j] = 5
+							entradas[idx].append([i,j])
+							wh.addBox(i,j,(255, 102, 178))
+					if i+1 < size:
+						if grid[i+1][j] == 4:
+							grid[i][j] = 5
+							entradas[idx].append([i,j])
+							wh.addBox(i,j,(255, 102, 178))
+					if j+1 < size:
+						if grid[i][j+1] == 4:
+							grid[i][j] = 5
+							entradas[idx].append([i,j])
+							wh.addBox(i,j,(255, 102, 178))
+					if j-1 >= 0:
+						if grid[i][j-1] == 4:
+							grid[i][j] = 5
+							entradas[idx].append([i,j])
+							wh.addBox(i,j,(255, 102, 178))
 
 		return entradas
 	def init_content(self):
