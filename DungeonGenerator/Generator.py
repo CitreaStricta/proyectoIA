@@ -106,80 +106,6 @@ class Generator:
 					grid = a_star(grid,rooms[i],rooms[j],wh)
 		self.grid = grid
 	
-	
-	def roomPathDarlinaaaaaa(self):
-		grid = self.grid
-		rooms = self.rooms
-		wh = self.wh
-		
-		size = len(grid)
-		idx = -1
-		entradas = []
-		camino = []
-
-		for r in rooms:
-			camino.append([])
-			entradas.append([])
-			idx = idx + 1
-			for i in range(r.x, r.x + r.width):
-				for j in range(r.y, r.y + r.length):
-					# Considerar sólo el borde de la sala para el camino inicial
-					if i == r.x: # Borde izquierdo
-						if [i,j] not in camino[idx]:
-							grid[i][j] = 100
-							camino[idx].append([i,j])
-					
-					if i == r.x + r.width - 1: # Borde derecho
-						if [i,j] not in camino[idx]:
-							grid[i][j] = 100
-							camino[idx].append([i,j])
-					
-					if j == r.y: # Borde superior
-						if [i,j] not in camino[idx]:
-							grid[i][j] = 100
-							camino[idx].append([i,j])
-					
-					if j == r.y + r.length - 1: # Borde inferior
-						if [i,j] not in camino[idx]:
-							grid[i][j] = 100
-							camino[idx].append([i,j])
-					# Pintar entrada a las salas
-					if i-1 >= 0: # Si entrada está a la izquierda
-						if grid[i-1][j] == 4:
-							grid[i][j] = 5	
-							entradas[idx].append([i,j])
-							wh.addBox(i,j,(255, 102, 178))
-
-					if i+1 < size: # Si entrada está a la derecha
-						if grid[i+1][j] == 4:
-							grid[i][j] = 5		
-							entradas[idx].append([i,j])
-							wh.addBox(i,j,(255, 102, 178))
-
-					if j+1 < size: # Si entrada está abajo
-						if grid[i][j+1] == 4:
-							grid[i][j] = 5		
-							entradas[idx].append([i,j])
-							wh.addBox(i,j,(255, 102, 178))
-
-					if j-1 >= 0: # Si entrada está arriba
-						if grid[i][j-1] == 4:
-							grid[i][j] = 5		
-							entradas[idx].append([i,j])
-							wh.addBox(i,j,(255, 102, 178))
-
-		for i in range(idx+1):
-			for j in range(len(camino[i])):
-				if camino[i][j] not in entradas[i]:
-					wh.addBox(camino[i][j][0],camino[i][j][1],(255, 204, 229))
-
-		return entradas
-
-	# algoritmo que busca un camino dentro de las habitaciones desde el centro de la habitacion hasta el objetivo en cuestion
-	# Los objetivos pueden ser puertas, cofres o lo que se defina
-	# def roomPath():
-		
-
 	def init_content(self):
 		rooms = self.rooms
 		grid = self.grid
@@ -280,6 +206,11 @@ class Generator:
 					# guardamos las coordenadas de la tile
 					room.addEmptyTile(tuple(emptyTile))
 
+		for room in self.rooms:
+			for empty in room.getEmptyTiles():
+				self.grid[empty[0]][empty[1]] = 6
+
+		# PRINT DE LOS CAMINOS QUE NO PUEDEN TENER CONTENIDO
 		for room in self.rooms:
 			for empty in room.getEmptyTiles():
 				wh.addBox(empty[0],empty[1],(150, 102, 178))

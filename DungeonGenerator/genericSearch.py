@@ -1,2 +1,0 @@
-def heuristic(dondeEstoy, dondeVoy):
-    
