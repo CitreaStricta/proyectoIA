@@ -200,7 +200,6 @@ class Generator:
 		wh = self.wh
 		tiles = [
 			Tile([0,0,0,0]),
-			Tile([0,0,0,0]),
 			Tile([1,0,0,0]),
 			Tile([0,1,0,0]),
 			Tile([0,0,1,0]),
