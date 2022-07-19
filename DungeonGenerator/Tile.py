@@ -2,10 +2,12 @@ import copy
 import random
 
 class Tile:
+	
 	def __init__(self, corners):
 		# corners := elementos pertenecientes a las esquinas de la baldosa
 		# [0] := IZQ-SUP, [1] := DER-SUP
 		# [3] := IZQ-INF, [2] := DER-INF
+		self.COLORS = [(3, 88, 140),(255,255,255),(255, 51, 82)]
 		self.corners = corners
 		self.up = []
 		self.down = []
@@ -26,14 +28,17 @@ class Tile:
 		socket1 = t.corners[(3+pos)%4]
 		socket2 = t.corners[(2+pos)%4]
 		return (socket1==self.corners[0+pos] and socket2==self.corners[(1+pos)%4])
-
+	def getColors(self):
+		COLORS = self.COLORS
+		corners = self.corners
+		return([ COLORS[corners[0]], COLORS[corners[1]], COLORS[corners[2]], COLORS[corners[3]] ])
 
 def getValues(coors,roomGrid,tiles):
 	i = coors[0]
 	j = coors[1]
 	values = list(range(len(tiles)))
 	if i < len(roomGrid)-1 and roomGrid[i+1][j] != -1:
-		nright = tiles[roomGrid[i-1][j]].left
+		nright = tiles[roomGrid[i+1][j]].left
 		values = [val for val in values if tiles[val] in nright]
 	# Consideramos valores posibles que puede tener a la derecha la baldosa a la izquierda
 	if i > 0 and roomGrid[i-1][j] != -1:
@@ -41,7 +46,7 @@ def getValues(coors,roomGrid,tiles):
 		values = [val for val in values if tiles[val] in nleft]
 	# Consideramos valores posibles que puede tener abajo la baldosa de arriba
 	if j > 0 and roomGrid[i][j-1] != -1:
-		nup = tiles[roomGrid[i-1][j]].down
+		nup = tiles[roomGrid[i][j-1]].down
 		values = [val for val in values if tiles[val] in nup]
 	# Consideramos valores posibles que puede tener arriba la baldosa de abajo
 	if j < len(roomGrid[i])-1 and roomGrid[i][j+1] != -1:
@@ -55,9 +60,7 @@ def getMostConstrained(roomGrid,tiles):
 	for i,row in enumerate(roomGrid):
 		for j,val in enumerate(row):
 			if val == -1:
-				coors[0] = i
-				coors[1] = j
-				minval = getValues(coors,roomGrid,tiles)
+				minval = getValues((i,j),roomGrid,tiles)
 				break
 		if minval != None:
 			break
@@ -65,8 +68,16 @@ def getMostConstrained(roomGrid,tiles):
 		for j,val in enumerate(row):
 			if roomGrid[i][j] == -1 and len(getValues((i,j),roomGrid,tiles)) < len(minval):
 				minval = getValues((i,j),roomGrid,tiles)
-				coors[0] = i
-				coors[1] = j
+	min_arr = []
+	for i,row in enumerate(roomGrid):
+		for j,val in enumerate(row):
+			if roomGrid[i][j] == -1 and len(getValues((i,j),roomGrid,tiles)) == len(minval):
+				min_arr.append([(i,j),getValues((i,j),roomGrid,tiles)])
+	if len(min_arr) > 0:
+		sel = random.choice(min_arr)
+		coors[0] = sel[0][0]
+		coors[1] = sel[0][1]
+		minval = sel[1]
 	return coors, minval
 
 def isComplete(roomGrid):
@@ -75,19 +86,31 @@ def isComplete(roomGrid):
 			if val == -1:
 				return False
 	return True
-def recursiveBacktracking(roomGrid,tiles,wh,roomc,iteration=-1):
+def waveFunctionCollapse(roomGrid,tiles,wh,roomc):
+
+	# while not isComplete(roomGrid):
+	# 	coors,var = getMostConstrained(roomGrid,tiles)
+	# 	#random.shuffle(var)
+	# 	if len(var) > 0:
+	# 		value = random.choice(var)
+	# 		roomGrid[coors[0]][coors[1]] = value
+	# 		if value != 0:
+	# 			wh.addTile(roomc[0]+coors[0],roomc[1]+coors[1], tiles[value].getColors())
+	# 			#wh.addBox(roomc[0]+coors[0],roomc[1]+coors[1],(124, 5, 242))
+	# 			wh.update()
+	# 	else:
+	# 		roomGrid[coors[0]][coors[1]] = 0
+
 	if isComplete(roomGrid):
 		return roomGrid
-	iteration_a = iteration + 1
-	print(f'iteration: {iteration}')
 	coors,var = getMostConstrained(roomGrid,tiles)
 	random.shuffle(var)
 	for value in var:
 		roomGrid[coors[0]][coors[1]] = value
 		if value != 0:
-			wh.addBox(roomc[0]+coors[0],roomc[1]+coors[1],(124, 5, 242))
+			wh.addTile(roomc[0]+coors[0],roomc[1]+coors[1], tiles[value].getColors())
 			wh.update()
-		result = recursiveBacktracking(roomGrid,tiles,wh,roomc,iteration_a)
+		result = waveFunctionCollapse(roomGrid,tiles,wh,roomc)
 		if result != None:
 			return result
 		roomGrid[coors[0]][coors[1]] = -1
@@ -97,28 +120,5 @@ def recursiveBacktracking(roomGrid,tiles,wh,roomc,iteration=-1):
 	return None
 
 
-def waveFunctionCollapse(roomGrid,tiles):
-	# roomgrid[i][j]=-1 := no hay nada aquí
-	# roomgrid[i][j]=0 := hay tile[0] en i,j
-	# posibleValues = []	# := matriz de valores posibles
-	# for i,row in enumerate(roomGrid):
-	# 	valuerow = []
-	# 	for j,val in enumerate(row):
-	# 		if val != 0:
-	# 			values = tiles.view()	# al inicio consideramos todas las baldosas posibles para i,j
-	# 			values = getValues((i,j),roomGrid,tiles,values)
-	# 			# vamos removiendo valores posibles según restricciónes
-	# 		else:
-	# 			values = []
-	# 		valuerow.append(values)
-	# 	posibleValues.append(valuerow)
-	return recursiveBacktracking(roomGrid,tiles)
 
 
-	# TODO -----------------------
-	# - Encontrar coordenadas de espacio con menor canitdad de baldosas posibles
-	# (de entre todas las casillas con valor -1)(si hay empate se toma solo 1, 
-	#  da lo mismo sistema de elección)
-	# - Definir un valor para casilla con menor valor
-	# - Terminar algoritmo cuando no se encuentren casillas con valor -1
-	# - Hay que implementar backtracking pues pueden haber casos en los que no haya niguna solución posible

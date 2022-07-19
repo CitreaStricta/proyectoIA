@@ -7,16 +7,35 @@ class Window:
 			self.boxes.append(row)
 		self.lines = []
 		self.points = []
+		self.tiles = []
 		self.rows = rows
 		self.size = size
 		self.window = pygame.display.set_mode((size,size),pygame.RESIZABLE)
 		self.reset = False
+	def addTile(self,x,y,colors):
+		self.tiles.append(((x,y),colors))
 	def addBox(self,x,y,color,boxid=0):
 		self.boxes[x][y] = (color,boxid)
 	def addLine(self,p1,p2,color,lineid=0):
 		self.lines.append(	((p1,p2),color,lineid)	)
 	def addPoint(self,x,y,color,pointid=0):
 		self.points.append(	((x,y),color,pointid)	)
+	def drawTiles(self):
+		bs = self.size/self.rows
+		win = self.window
+		rows = self.rows
+		tiles = self.tiles
+		for t in tiles:
+			x = t[0][0]
+			y = t[0][1]
+			side = (bs-1)/2
+			rect = []
+			rect.append(pygame.Rect(x*bs+0.5, y*bs+0.5, side, side))
+			rect.append(pygame.Rect(x*bs+0.5+side, y*bs+0.5, side, side))
+			rect.append(pygame.Rect(x*bs+0.5+side, y*bs+0.5+side, side, side))
+			rect.append(pygame.Rect(x*bs+0.5, y*bs+0.5+side, side, side))
+			for i, r in enumerate(rect):
+				pygame.draw.rect(win, t[1][i], r)
 	def drawBoxes(self):
 		bs = self.size/self.rows
 		win = self.window
@@ -63,7 +82,7 @@ class Window:
 				size = event.w
 				self.size = size
 				self.window = pygame.display.set_mode((size, size),
-	                                          pygame.RESIZABLE)
+											  pygame.RESIZABLE)
 			if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
 				self.reset = True
 	def clear(self):
@@ -76,4 +95,5 @@ class Window:
 		self.drawBoxes()
 		self.drawLines()
 		self.drawPoints()
+		self.drawTiles()
 		pygame.display.update()
