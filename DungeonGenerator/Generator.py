@@ -1,3 +1,4 @@
+from re import S
 from DungeonGenerator.A_star import a_star
 from scipy.spatial import Delaunay
 from scipy.sparse.csgraph import minimum_spanning_tree
@@ -104,7 +105,7 @@ class Generator:
 		self.grid = grid
 	
 	
-	def roomPath(self):
+	def roomPathDarlinaaaaaa(self):
 		grid = self.grid
 		rooms = self.rooms
 		wh = self.wh
@@ -168,6 +169,11 @@ class Generator:
 
 		return entradas
 
+	# algoritmo que busca un camino dentro de las habitaciones desde el centro de la habitacion hasta el objetivo en cuestion
+	# Los objetivos pueden ser puertas, cofres o lo que se defina
+	# def roomPath():
+		
+
 	def init_content(self):
 		rooms = self.rooms
 		grid = self.grid
@@ -188,6 +194,93 @@ class Generator:
 			contenidos.append(contenido)
 
 		return contenidos
+
+	# busca las puertas de una room y las guarda en un set() en la room
+	def findDoorsOfRoom(self, room):
+		r = room
+		grid = self.grid
+		wh = self.wh
+		size = len(grid)
+  
+		for i in range(r.x, r.x + r.width):
+			for j in range(r.y, r.y + r.length):
+				# Pintar entrada a las salas
+				if i-1 >= 0: # Si entrada está a la izquierda
+					if grid[i-1][j] == 4:
+						grid[i][j] = 5
+						wh.addBox(i,j,(255, 102, 178))
+						r.addEntrance((i,j))
+
+				if i+1 < size: # Si entrada está a la derecha
+					if grid[i+1][j] == 4:
+						grid[i][j] = 5
+						wh.addBox(i,j,(255, 102, 178))
+						r.addEntrance((i,j))
+
+				if j+1 < size: # Si entrada está abajo
+					if grid[i][j+1] == 4:
+						grid[i][j] = 5
+						wh.addBox(i,j,(255, 102, 178))
+						r.addEntrance((i,j))
+
+				if j-1 >= 0: # Si entrada está arriba
+					if grid[i][j-1] == 4:
+						grid[i][j] = 5
+						wh.addBox(i,j,(255, 102, 178))
+						r.addEntrance((i,j))
+
+	# define cuales tiles no deben tener contenido en ellas
+	def defineEmptyRoads(self):
+		wh = self.wh
+		# a cada room
+		for room in self.rooms:
+			# le buscamos su centro
+			roomCentro = (int(room.centerx), int(room.centery))
+			# buscamos todas las purtas de la room
+			self.findDoorsOfRoom(room)
+			# iteramos en todas las puertas
+			for entrance in room.getEntrances():
+				# guardamos las puertas en las "mustBeEmpty" tiles
+				room.addEmptyTile(entrance)
+				# variable aux para "viajar" emptyTile
+				emptyTile = roomCentro
+				# guardamos el centro en las "mustBeEmpty" tiles
+				room.addEmptyTile(roomCentro)
+    
+				emptyTile = list(emptyTile) # de tupla a lista para manipularlas
+    
+				# calculamos la distancia que hay del centro a la puerta
+				dist = (roomCentro[0] - entrance[0], roomCentro[1] - entrance[1])
+				dist = list(dist)
+				# nos movemos por las tiles hasta llegar del centro a la puerta
+				while dist[0] != 0 or dist[1] != 0:
+					# nos movemos por el eje que sea mayor
+					if abs(dist[0]) > abs(dist[1]):
+						#si es positivo
+						if dist[0] > 0:
+							dist[0] = dist[0] - 1
+							emptyTile[0] = emptyTile[0] - 1
+						else:# si es negativo
+							dist[0] = dist[0] + 1
+							emptyTile[0] = emptyTile[0] + 1
+      
+					else:
+						if dist[1] > 0:
+							dist[1] = dist[1] - 1
+							emptyTile[1] = emptyTile[1] - 1	
+						else:# si es negativo
+							dist[1] = dist[1] + 1
+							emptyTile[1] = emptyTile[1] + 1
+					# guardamos las coordenadas de la tile
+					room.addEmptyTile(tuple(emptyTile))
+
+		for room in self.rooms:
+			for empty in room.getEmptyTiles():
+				wh.addBox(empty[0],empty[1],(150, 102, 178))
+			for entrance in room.getEntrances():
+				wh.addBox(entrance[0],entrance[1],(255, 102, 178))
+				
+    
 	def generateDungeon(self,rows=50):
 		size = self.size
 		self.rows = rows
@@ -198,7 +291,7 @@ class Generator:
 		self.generateRooms()
 		self.generateGraph()
 		self.getPaths()
-		self.roomPath()
+		self.defineEmptyRoads()
 		contenidos = self.init_content()
 		while True:
 			wh.update()

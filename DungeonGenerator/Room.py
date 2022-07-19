@@ -4,6 +4,8 @@ class room:
     def __init__(self,length,width):
         self.length = length
         self.width = width
+        self.entrances = set()
+        self.mustBeEmpty = set()
 
     # coordenadas de posición de la room
     def coord(self,x,y):
@@ -11,6 +13,23 @@ class room:
         self.y = y
         self.centerx = x + self.width/2
         self.centery = y + self.length/2
+    
+    # agrega una entrada a la habitacion
+    def addEntrance(self, tileCoords):
+        if tileCoords not in self.entrances:
+            self.entrances.add(tileCoords)
+    
+    # retorna un set con todas las entradas de una habitacion
+    def getEntrances(self):
+        return self.entrances
+    
+    def addEmptyTile(self, tileCoords):
+        self.mustBeEmpty.add(tileCoords)
+    
+    def getEmptyTiles(self):
+        return self.mustBeEmpty
+    
+    
 
     # check para asegurarse de que las rooms no sean colocadas una encima de otra
     def isColliding(self,room):
