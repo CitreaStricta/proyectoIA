@@ -11,7 +11,12 @@ class room:
         self.y = y
         self.centerx = x + self.width/2
         self.centery = y + self.length/2
-
+    def asGrid(self):
+        grid = []               # grid := matriz del mapa entero de tamaño sizexsize.
+        for i in range(self.width):  # Se inicializan los valores de la matriz con 0's.
+            row = [-1] * self.length
+            grid.append(row)
+        return grid
     # check para asegurarse de que las rooms no sean colocadas una encima de otra
     def isColliding(self,room):
         # Para saber si 2 cuadrados están intersectándose, sus proyecciones en cada dimensión tienen que estar

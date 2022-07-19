@@ -7,6 +7,8 @@ from DungeonGenerator.Room import room
 #from window_handler import windowHandler
 from DungeonGenerator.Window import Window
 from DungeonGenerator import room_content
+from DungeonGenerator.Tile import Tile
+from DungeonGenerator.Tile import recursiveBacktracking
 import random
 
 class Generator:
@@ -188,6 +190,23 @@ class Generator:
 			contenidos.append(contenido)
 
 		return contenidos
+	def generarContenido(self):
+		rooms = self.rooms
+		wh = self.wh
+		tiles = [
+			Tile([0,0,1,1]),
+			Tile([1,1,0,0]),
+			Tile([0,0,0,0]),
+			Tile([1,0,0,0]),
+			Tile([0,1,0,0]),
+			Tile([0,0,1,0]),
+			Tile([0,0,0,1]),
+		]
+		for t in tiles:
+			t.setNeighbors(tiles)
+		for r in rooms:
+			recursiveBacktracking(r.asGrid(),tiles,wh,(r.x,r.y))
+
 	def generateDungeon(self,rows=50):
 		size = self.size
 		self.rows = rows
@@ -199,6 +218,7 @@ class Generator:
 		self.generateGraph()
 		self.getPaths()
 		self.roomPath()
+		self.generarContenido()
 		contenidos = self.init_content()
 		while True:
 			wh.update()
