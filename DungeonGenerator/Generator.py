@@ -8,6 +8,8 @@ from DungeonGenerator.Room import room
 #from window_handler import windowHandler
 from DungeonGenerator.Window import Window
 from DungeonGenerator import room_content
+from DungeonGenerator.Tile import Tile
+from DungeonGenerator.Tile import waveFunctionCollapse
 import random
 
 class Generator:
@@ -124,18 +126,22 @@ class Generator:
 					# Considerar sólo el borde de la sala para el camino inicial
 					if i == r.x: # Borde izquierdo
 						if [i,j] not in camino[idx]:
+							grid[i][j] = 100
 							camino[idx].append([i,j])
 					
 					if i == r.x + r.width - 1: # Borde derecho
 						if [i,j] not in camino[idx]:
+							grid[i][j] = 100
 							camino[idx].append([i,j])
 					
 					if j == r.y: # Borde superior
 						if [i,j] not in camino[idx]:
+							grid[i][j] = 100
 							camino[idx].append([i,j])
 					
 					if j == r.y + r.length - 1: # Borde inferior
 						if [i,j] not in camino[idx]:
+							grid[i][j] = 100
 							camino[idx].append([i,j])
 					# Pintar entrada a las salas
 					if i-1 >= 0: # Si entrada está a la izquierda
@@ -281,6 +287,34 @@ class Generator:
 				wh.addBox(entrance[0],entrance[1],(255, 102, 178))
 				
     
+	def generarContenido(self):
+		grid = self.grid
+		rooms = self.rooms
+		wh = self.wh
+		tiles = [
+			Tile([0,0,0,0]),
+			Tile([1,0,0,0]),
+			Tile([0,1,0,0]),
+			Tile([0,0,1,0]),
+			Tile([0,0,0,1]),
+			Tile([1,1,0,0]),
+			Tile([0,1,1,0]),
+			Tile([0,0,1,1]),
+			Tile([1,0,0,1]),
+			Tile([2,0,0,0]),
+			Tile([0,2,0,0]),
+			Tile([0,0,2,0]),
+			Tile([0,0,0,2]),
+			Tile([2,2,0,0]),
+			Tile([0,2,2,0]),
+			Tile([0,0,2,2]),
+			Tile([2,0,0,2]),
+		]
+		for t in tiles:
+			t.setNeighbors(tiles)
+		for r in rooms:
+			waveFunctionCollapse(r.asGrid(grid),tiles,wh,(r.x,r.y))
+
 	def generateDungeon(self,rows=50):
 		size = self.size
 		self.rows = rows
@@ -292,6 +326,7 @@ class Generator:
 		self.generateGraph()
 		self.getPaths()
 		self.defineEmptyRoads()
+		self.generarContenido()
 		contenidos = self.init_content()
 		while True:
 			wh.update()
